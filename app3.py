@@ -13,7 +13,7 @@ st.title("인도네시아 식품법 챗봇")
 @st.cache_resource
 def load_data():
     embeddings = OpenAIEmbeddings(openai_api_key=st.secrets["OPENAI_API_KEY"])
-    vectorstore = FAISS.load_local("faiss_index", embeddings)
+    vectorstore = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)  # 이 부분이 수정됨
     return vectorstore
 
 try:
