@@ -1,10 +1,10 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
-# OpenAI API 키 설정
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# OpenAI 클라이언트 설정
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # 제목 설정
 st.title("인도네시아 식품법 챗봇")
@@ -13,7 +13,7 @@ st.title("인도네시아 식품법 챗봇")
 @st.cache_resource
 def load_data():
     embeddings = OpenAIEmbeddings(openai_api_key=st.secrets["OPENAI_API_KEY"])
-    vectorstore = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)  # 이 부분이 수정됨
+    vectorstore = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     return vectorstore
 
 try:
@@ -26,8 +26,8 @@ try:
         docs = vectorstore.similarity_search(user_question, k=3)
         context = "\n".join([doc.page_content for doc in docs])
         
-        # OpenAI API로 답변 생성
-        response = openai.ChatCompletion.create(
+        # OpenAI API로 답변 생성 (새로운 형식)
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": f"다음 문서를 바탕으로 질문에 답변해주세요: {context}"},
